@@ -5,6 +5,18 @@ import requests
 import json
 import time
 
+def save_to_json(client_id, details, state, large_image_id, small_image_id):
+    data = {
+        "client_id": client_id,
+        "details": details,
+        "state": state,
+        "large_image_id": large_image_id,
+        "small_image_id": small_image_id
+    }
+    with open("presence_details.json", "w") as json_file:
+        json.dump(data, json_file, indent=4)
+    status_label.config(text="Saved to presence_details.json")
+
 def update_presence():
     client_id = client_id_entry.get()
     details = details_entry.get()
@@ -13,6 +25,8 @@ def update_presence():
 
     large_image_id = large_image_combobox.get()
     small_image_id = small_image_combobox.get()
+
+    save_to_json(client_id, details, state, large_image_id, small_image_id)
 
     RPC = Presence(client_id)
     try:
@@ -29,6 +43,16 @@ def update_presence():
         status_label.config(text="Presence Güncellendi!")
     except Exception as e:
         status_label.config(text=f"Error: {e}")
+
+def fetch_image_ids(client_id):
+    url = f"https://discord.com/api/oauth2/applications/{client_id}/assets"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        image_ids = [asset["id"] for asset in data if asset["type"] == 1]
+        return image_ids
+    else:
+        return []
 
 def fetch_image_ids(client_id):
     url = f"https://discord.com/api/oauth2/applications/{client_id}/assets"
@@ -60,18 +84,18 @@ tk.Label(root, text="State:").grid(row=2, column=0)
 state_entry = tk.Entry(root)
 state_entry.grid(row=2, column=1, columnspan=2)
 
-tk.Label(root, text="Büyük Resim ID:").grid(row=3, column=0)
+tk.Label(root, text="large_image_ ID:").grid(row=3, column=0)
 large_image_combobox = ttk.Combobox(root)
 large_image_combobox.grid(row=3, column=1, columnspan=2)
 
-tk.Label(root, text="Küçük Resim ID:").grid(row=4, column=0)
+tk.Label(root, text="small_image_ ID:").grid(row=4, column=0)
 small_image_combobox = ttk.Combobox(root)
 small_image_combobox.grid(row=4, column=1, columnspan=2)
 
-update_combobox_button = tk.Button(root, text="Resim ID'leri Güncelle", command=lambda: update_combobox(client_id_entry.get()))
+update_combobox_button = tk.Button(root, text="update ID's", command=lambda: update_combobox(client_id_entry.get()))
 update_combobox_button.grid(row=5, columnspan=3)
 
-update_button = tk.Button(root, text="Güncelle", command=update_presence)
+update_button = tk.Button(root, text="Update Presence & Load Presence", command=update_presence)
 update_button.grid(row=6, columnspan=3)
 
 status_label = tk.Label(root, text="")
