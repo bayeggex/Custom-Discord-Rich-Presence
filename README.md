@@ -59,10 +59,6 @@ Run the script with the following command:
 python main.py
 ```
 
-or 
-
-just Click the Main.exe in Build folder
-
 That's it! Your custom Rich Presence will now be displayed on your Discord profile. 🎉
 ## 🤝 Contributing
 
